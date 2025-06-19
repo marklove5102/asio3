@@ -67,6 +67,9 @@ project (asio3)
 
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
+option(BUILD_EXAMPLES "Build examples" OFF)
+option(BUILD_TESTS "Build tests" OFF)
+
 # how to detect current is 32 bit or 64 bit ?
 #if(NOT "${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)")
 #endif()
@@ -170,7 +173,28 @@ if(CMAKE_SYSTEM_NAME MATCHES "CYGWIN" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
     set(CMAKE_CXX_EXTENSIONS ON)
 endif()
 
+add_library(asio3 INTERFACE)
 
+target_include_directories(asio3
+  INTERFACE
+    ${ASIO3_ROOT_DIR}/3rd
+    ${ASIO3_ROOT_DIR}/3rd/openssl/include
+    ${ASIO3_ROOT_DIR}/include
+)
+
+target_link_directories(asio3
+  INTERFACE
+    ${ASIO3_LIBS_DIR}
+)
+
+target_link_libraries(asio3
+  INTERFACE
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${GENERAL_LIBS}
+    ${OPENSSL_LIBS}
+)
+
+target_compile_features(asio3 INTERFACE cxx_std_23)
 
 if (MSVC)
     set (CMAKE_VERBOSE_MAKEFILE FALSE)
@@ -236,15 +260,6 @@ if(MINGW OR CYGWIN)
 endif()
 
 
-#include_directories (/usr/local/include) # for boost header file include
-#include_directories (D:/boost)           # for boost header file include
-
-include_directories (${ASIO3_ROOT_DIR}/3rd)
-include_directories (${ASIO3_ROOT_DIR}/3rd/openssl/include)
-include_directories (${ASIO3_ROOT_DIR}/include)
-
-#link_directories    (/usr/local/lib)     # for boost library file include
-#link_directories    (D:/boost/stage/lib) # for boost library file include
 
 
 file (GLOB_RECURSE  ASIO3_FILES  ${ASIO3_ROOT_DIR}/include/asio3/*.*)
@@ -259,4 +274,16 @@ enable_testing()
 # but it will successed when use the shared ssl librarys like this:
 # https://github.com/axmolengine/buildware/releases/tag/v41
 
-add_subdirectory (example)
+if (BUILD_EXAMPLES)
+  #include_directories (/usr/local/include) # for boost header file include
+  #include_directories (D:/boost)           # for boost header file include
+  
+  include_directories (${ASIO3_ROOT_DIR}/3rd)
+  include_directories (${ASIO3_ROOT_DIR}/3rd/openssl/include)
+  include_directories (${ASIO3_ROOT_DIR}/include)
+  
+  #link_directories    (/usr/local/lib)     # for boost library file include
+  #link_directories    (D:/boost/stage/lib) # for boost library file include
+  
+  add_subdirectory (example)
+endif(BUILD_EXAMPLES)

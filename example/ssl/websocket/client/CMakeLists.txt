@@ -17,8 +17,6 @@ source_group("" FILES ${SRC_FILES})
 
 set(TARGET_NAME wss_client)
 
-link_directories    (${ASIO3_LIBS_DIR})
-
 add_executable (
     ${TARGET_NAME}
     ${ASIO3_FILES}
@@ -34,6 +32,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${
 if (MSVC)
     set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS "/ignore:4099")
 endif()
+
+target_link_directories(${TARGET_NAME} PRIVATE ${ASIO3_LIBS_DIR})
 
 target_link_libraries(${TARGET_NAME} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${TARGET_NAME} ${GENERAL_LIBS})
