@@ -55,7 +55,7 @@ namespace boost::asio::detail
 			if (!!state.cancelled())
 				co_return{ asio::error::operation_aborted, endpoint_type{} };
 
-			endpoint_type bnd_endpoint = (*eps).endpoint();
+			endpoint_type bnd_endpoint = eps.begin()->endpoint();
 
 			asio::error_code ec;
 

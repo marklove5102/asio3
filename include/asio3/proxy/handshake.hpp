@@ -454,41 +454,48 @@ namespace boost::asio::socks5::detail
 
 			p = const_cast<char*>(static_cast<const char*>(strbuf.data().data()));
 
-			switch (atyp)
+			try
 			{
-			case std::uint8_t(0x01): // IP V4 address: X'01'
-			{
-				asio::ip::address_v4::bytes_type addr{};
-				addr[0] = alen;
-				addr[1] = read<std::uint8_t>(p);
-				addr[2] = read<std::uint8_t>(p);
-				addr[3] = read<std::uint8_t>(p);
-				bnd_addr = asio::ip::address_v4(addr).to_string(ec);
-				bnd_port = read<std::uint16_t>(p);
-			}
-			break;
-			case std::uint8_t(0x03): // DOMAINNAME: X'03'
-			{
-				std::string addr;
-				addr.resize(alen);
-				std::copy(p, p + alen, addr.data());
-				p += alen;
-				bnd_addr = std::move(addr);
-				bnd_port = read<std::uint16_t>(p);
-			}
-			break;
-			case std::uint8_t(0x04): // IP V6 address: X'04'
-			{
-				asio::ip::address_v6::bytes_type addr{};
-				addr[0] = alen;
-				for (int i = 1; i < 16; i++)
+				switch (atyp)
 				{
-					addr[i] = read<std::uint8_t>(p);
+				case std::uint8_t(0x01): // IP V4 address: X'01'
+				{
+					asio::ip::address_v4::bytes_type addr{};
+					addr[0] = alen;
+					addr[1] = read<std::uint8_t>(p);
+					addr[2] = read<std::uint8_t>(p);
+					addr[3] = read<std::uint8_t>(p);
+					bnd_addr = asio::ip::address_v4(addr).to_string();
+					bnd_port = read<std::uint16_t>(p);
 				}
-				bnd_addr = asio::ip::address_v6(addr).to_string(ec);
-				bnd_port = read<std::uint16_t>(p);
+				break;
+				case std::uint8_t(0x03): // DOMAINNAME: X'03'
+				{
+					std::string addr;
+					addr.resize(alen);
+					std::copy(p, p + alen, addr.data());
+					p += alen;
+					bnd_addr = std::move(addr);
+					bnd_port = read<std::uint16_t>(p);
+				}
+				break;
+				case std::uint8_t(0x04): // IP V6 address: X'04'
+				{
+					asio::ip::address_v6::bytes_type addr{};
+					addr[0] = alen;
+					for (int i = 1; i < 16; i++)
+					{
+						addr[i] = read<std::uint8_t>(p);
+					}
+					bnd_addr = asio::ip::address_v6(addr).to_string();
+					bnd_port = read<std::uint16_t>(p);
+				}
+				break;
+				}
 			}
-			break;
+			catch (const asio::system_error& e)
+			{
+				ec = e.code();
 			}
 
 			ec = {};

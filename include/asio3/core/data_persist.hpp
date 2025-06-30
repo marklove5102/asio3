@@ -112,7 +112,7 @@ namespace boost::asio::detail
 		return data_persist(asio::const_buffer(data));
 	}
 
-#if !defined(ASIO_NO_DEPRECATED) && !defined(BOOST_ASIO_NO_DEPRECATED)
+#if !defined(ASIO_NO_DEPRECATED) && !defined(BOOST_ASIO_NO_DEPRECATED) && (defined(ASIO_CONST_BUFFER) || defined(BOOST_ASIO_CONST_BUFFER))
 	template<typename = void>
 	[[nodiscard]] inline auto data_persist(asio::const_buffers_1&& data) noexcept
 	{
@@ -130,7 +130,9 @@ namespace boost::asio::detail
 	{
 		return data_persist(asio::const_buffer(data));
 	}
+#endif
 
+#if !defined(ASIO_NO_DEPRECATED) && !defined(BOOST_ASIO_NO_DEPRECATED) && (defined(ASIO_MUTABLE_BUFFER) || defined(BOOST_ASIO_MUTABLE_BUFFER))
 	template<typename = void>
 	[[nodiscard]] inline auto data_persist(asio::mutable_buffers_1&& data) noexcept
 	{

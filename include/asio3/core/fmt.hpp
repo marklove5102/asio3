@@ -216,7 +216,7 @@ struct fmt::formatter<asio::mutable_buffer> : formatter<std::string_view>
 		return formatter<std::string_view>::format(sv, ctx);
 	}
 };
-#if !defined(ASIO_NO_DEPRECATED)
+#if !defined(ASIO_NO_DEPRECATED) && defined(ASIO_CONST_BUFFER)
 template <>
 struct fmt::formatter<asio::const_buffers_1> : formatter<std::string_view>
 {
@@ -226,6 +226,8 @@ struct fmt::formatter<asio::const_buffers_1> : formatter<std::string_view>
 		return formatter<std::string_view>::format(sv, ctx);
 	}
 };
+#endif
+#if !defined(ASIO_NO_DEPRECATED) && defined(ASIO_MUTABLE_BUFFER)
 template <>
 struct fmt::formatter<asio::mutable_buffers_1> : formatter<std::string_view>
 {
@@ -255,7 +257,7 @@ struct fmt::formatter<boost::asio::mutable_buffer> : formatter<std::string_view>
 		return formatter<std::string_view>::format(sv, ctx);
 	}
 };
-#if !defined(BOOST_ASIO_NO_DEPRECATED)
+#if !defined(BOOST_ASIO_NO_DEPRECATED) && defined(BOOST_ASIO_CONST_BUFFER)
 template <>
 struct fmt::formatter<boost::asio::const_buffers_1> : formatter<std::string_view>
 {
@@ -265,6 +267,8 @@ struct fmt::formatter<boost::asio::const_buffers_1> : formatter<std::string_view
 		return formatter<std::string_view>::format(sv, ctx);
 	}
 };
+#endif
+#if !defined(BOOST_ASIO_NO_DEPRECATED) && defined(BOOST_ASIO_MUTABLE_BUFFER)
 template <>
 struct fmt::formatter<boost::asio::mutable_buffers_1> : formatter<std::string_view>
 {

@@ -331,46 +331,53 @@ namespace boost::asio::socks5
 		dst_addr = "";
 		dst_port = 0;
 
-		switch (atyp)
+		try
 		{
-		case socks5::address_type::ipv4: // IP V4 address: X'01'
-		{
-			asio::ip::address_v4::bytes_type addr{};
-			addr[0] = alen;
-			addr[1] = read<std::uint8_t>(p);
-			addr[2] = read<std::uint8_t>(p);
-			addr[3] = read<std::uint8_t>(p);
-			dst_endpoint.address(asio::ip::address_v4(addr));
-			dst_addr = dst_endpoint.address().to_string(ec);
-			dst_port = read<std::uint16_t>(p);
-			dst_endpoint.port(dst_port);
-		}
-		break;
-		case socks5::address_type::domain: // DOMAINNAME: X'03'
-		{
-			std::string addr;
-			addr.resize(alen);
-			std::copy(p, p + alen, addr.data());
-			p += alen;
-			dst_addr = std::move(addr);
-			dst_port = read<std::uint16_t>(p);
-			dst_endpoint.port(dst_port);
-		}
-		break;
-		case socks5::address_type::ipv6: // IP V6 address: X'04'
-		{
-			asio::ip::address_v6::bytes_type addr{};
-			addr[0] = alen;
-			for (int i = 1; i < 16; i++)
+			switch (atyp)
 			{
-				addr[i] = read<std::uint8_t>(p);
+			case socks5::address_type::ipv4: // IP V4 address: X'01'
+			{
+				asio::ip::address_v4::bytes_type addr{};
+				addr[0] = alen;
+				addr[1] = read<std::uint8_t>(p);
+				addr[2] = read<std::uint8_t>(p);
+				addr[3] = read<std::uint8_t>(p);
+				dst_endpoint.address(asio::ip::address_v4(addr));
+				dst_addr = dst_endpoint.address().to_string();
+				dst_port = read<std::uint16_t>(p);
+				dst_endpoint.port(dst_port);
 			}
-			dst_endpoint.address(asio::ip::address_v6(addr));
-			dst_addr = dst_endpoint.address().to_string(ec);
-			dst_port = read<std::uint16_t>(p);
-			dst_endpoint.port(dst_port);
+			break;
+			case socks5::address_type::domain: // DOMAINNAME: X'03'
+			{
+				std::string addr;
+				addr.resize(alen);
+				std::copy(p, p + alen, addr.data());
+				p += alen;
+				dst_addr = std::move(addr);
+				dst_port = read<std::uint16_t>(p);
+				dst_endpoint.port(dst_port);
+			}
+			break;
+			case socks5::address_type::ipv6: // IP V6 address: X'04'
+			{
+				asio::ip::address_v6::bytes_type addr{};
+				addr[0] = alen;
+				for (int i = 1; i < 16; i++)
+				{
+					addr[i] = read<std::uint8_t>(p);
+				}
+				dst_endpoint.address(asio::ip::address_v6(addr));
+				dst_addr = dst_endpoint.address().to_string();
+				dst_port = read<std::uint16_t>(p);
+				dst_endpoint.port(dst_port);
+			}
+			break;
+			}
 		}
-		break;
+		catch (const asio::system_error& e)
+		{
+			ec = e.code();
 		}
 
 		asio::ip::address bnd_addr = sock.local_endpoint(ec).address();
@@ -456,7 +463,7 @@ namespace boost::asio::socks5
 					resolver, dst_addr, dst_port, eps, asio::ip::resolver_base::flags());
 				if (!er)
 				{
-					if ((*eps).endpoint().address().is_v6())
+					if (eps.begin()->endpoint().address().is_v6())
 						bnd_protocol = asio::ip::udp::v6();
 					else
 						bnd_protocol = asio::ip::udp::v4();

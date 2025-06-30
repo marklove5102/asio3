@@ -39,7 +39,7 @@ namespace boost::asio::detail
 	 */
 	template<class SocketT>
 	requires is_tcp_socket<SocketT>
-	bool set_keepalive_options(
+	asio::error_code set_keepalive_options(
 		SocketT&     socket,
 		bool         onoff = true,
 		unsigned int idle = 60,
@@ -49,8 +49,7 @@ namespace boost::asio::detail
 	{
 		if (!socket.is_open())
 		{
-			set_last_error(asio::error::not_connected);
-			return false;
+			return asio::error::not_connected;
 		}
 
 		error_code ec;
@@ -60,8 +59,7 @@ namespace boost::asio::detail
 
 		if (ec)
 		{
-			set_last_error(ec);
-			return false;
+			return ec;
 		}
 
 		auto native_fd = socket.native_handle();
@@ -73,22 +71,19 @@ namespace boost::asio::detail
 		int ret_keepidle  = setsockopt(native_fd, SOL_TCP, TCP_KEEPIDLE , (void*)&idle    , sizeof(unsigned int));
 		if (ret_keepidle)
 		{
-			set_last_error(errno, asio::error::get_system_category());
-			return false;
+			return asio::error_code{ errno, asio::error::get_system_category() };
 		}
 
 		int ret_keepintvl = setsockopt(native_fd, SOL_TCP, TCP_KEEPINTVL, (void*)&interval, sizeof(unsigned int));
 		if (ret_keepintvl)
 		{
-			set_last_error(errno, asio::error::get_system_category());
-			return false;
+			return asio::error_code{ errno, asio::error::get_system_category() };
 		}
 
 		int ret_keepcount = setsockopt(native_fd, SOL_TCP, TCP_KEEPCNT  , (void*)&count   , sizeof(unsigned int));
 		if (ret_keepcount)
 		{
-			set_last_error(errno, asio::error::get_system_category());
-			return false;
+			return asio::error_code{ errno, asio::error::get_system_category() };
 		}
 	#elif ASIO3_OS_UNIX
 		// be pending
@@ -96,22 +91,19 @@ namespace boost::asio::detail
 		int ret_keepalive = setsockopt(native_fd, IPPROTO_TCP, TCP_KEEPALIVE, (void*)&idle    , sizeof(unsigned int));
 		if (ret_keepalive)
 		{
-			set_last_error(errno, asio::error::get_system_category());
-			return false;
+			return asio::error_code{ errno, asio::error::get_system_category() };
 		}
 
 		int ret_keepintvl = setsockopt(native_fd, IPPROTO_TCP, TCP_KEEPINTVL, (void*)&interval, sizeof(unsigned int));
 		if (ret_keepintvl)
 		{
-			set_last_error(errno, asio::error::get_system_category());
-			return false;
+			return asio::error_code{ errno, asio::error::get_system_category() };
 		}
 
 		int ret_keepcount = setsockopt(native_fd, IPPROTO_TCP, TCP_KEEPCNT  , (void*)&count   , sizeof(unsigned int));
 		if (ret_keepcount)
 		{
-			set_last_error(errno, asio::error::get_system_category());
-			return false;
+			return asio::error_code{ errno, asio::error::get_system_category() };
 		}
 	#elif ASIO3_OS_IOS
 		// be pending
@@ -131,18 +123,17 @@ namespace boost::asio::detail
 			{
 				if (::WSAGetLastError() != WSAEWOULDBLOCK)
 				{
-					set_last_error(::WSAGetLastError(), asio::error::get_system_category());
-					return false;
+					return asio::error_code{ ::WSAGetLastError(), asio::error::get_system_category() };
 				}
 			}
 		#endif
 	#endif
-		return true;
+		return asio::error_code{};
 	}
 
 	template<class SocketT>
 	requires (!is_tcp_socket<SocketT>)
-	bool set_keepalive_options(
+	asio::error_code set_keepalive_options(
 		SocketT&     socket,
 		bool         onoff = true,
 		unsigned int idle = 60,
@@ -152,6 +143,6 @@ namespace boost::asio::detail
 	{
 		asio::ignore_unused(socket, onoff, idle, interval, count);
 
-		return true;
+		return asio::error_code{};
 	}
 }

@@ -119,8 +119,14 @@ namespace boost::asio
 		 */
 		[[nodiscard]] inline std::string get_remote_address() noexcept
 		{
-			error_code ec{};
-			return remote_endpoint.address().to_string(ec);
+			try
+			{
+				return remote_endpoint.address().to_string();
+			}
+			catch (const asio::system_error&)
+			{
+			}
+			return std::string{};
 		}
 
 		/**

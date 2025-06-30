@@ -175,7 +175,7 @@ inline void insert_udp_header(
 
 	asio::error_code ec{};
 
-	asio::ip::address dest_addr = asio::ip::address::from_string(dest_address, ec);
+	asio::ip::address dest_addr = asio::ip::make_address(dest_address, ec);
 	
 	// ec has no error, it must be ipv4 or ipv6
 	if (!ec)

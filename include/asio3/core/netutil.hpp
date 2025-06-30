@@ -181,8 +181,14 @@ namespace boost::asio
 	 */
 	[[nodiscard]] inline ::std::string get_local_address(auto& sock) noexcept
 	{
-		error_code ec{};
-		return sock.local_endpoint(ec).address().to_string(ec);
+		try
+		{
+			return sock.local_endpoint().address().to_string();
+		}
+		catch (const asio::system_error&)
+		{
+		}
+		return std::string{};
 	}
 
 	/**
@@ -199,8 +205,14 @@ namespace boost::asio
 	 */
 	[[nodiscard]] inline ::std::string get_remote_address(auto& sock) noexcept
 	{
-		error_code ec{};
-		return sock.remote_endpoint(ec).address().to_string(ec);
+		try
+		{
+			return sock.remote_endpoint().address().to_string();
+		}
+		catch (const asio::system_error&)
+		{
+		}
+		return std::string{};
 	}
 
 	/**

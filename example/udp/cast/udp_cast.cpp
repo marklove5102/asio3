@@ -117,7 +117,7 @@ net::awaitable<void> do_multicast_sender(net::udp_socket& sock)
 		// send data to the multicast_endpoint
 		// multicast address
 		// the recver must be recv data at port 1900
-		net::ip::udp::endpoint multicast_endpoint(net::ip::address::from_string("239.255.255.250"), 1900);
+		net::ip::udp::endpoint multicast_endpoint(net::ip::make_address("239.255.255.250"), 1900);
 
 		for (;;)
 		{
@@ -275,7 +275,7 @@ net::awaitable<void> do_broadcast(net::udp_socket& sock)
 		// https://zhuanlan.zhihu.com/p/323918414
 		// can't use the 0xffffffff broadcast address
 		//net::ip::udp::endpoint broadcast_endpoint(net::ip::address_v4::broadcast(), 2905);
-		net::ip::udp::endpoint broadcast_endpoint(net::ip::address::from_string("192.168.255.255"), 2905);
+		net::ip::udp::endpoint broadcast_endpoint(net::ip::make_address("192.168.255.255"), 2905);
 
 		for (;;)
 		{

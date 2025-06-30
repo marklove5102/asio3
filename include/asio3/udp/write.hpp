@@ -54,7 +54,7 @@ namespace boost::asio::detail
 			[[maybe_unused]] asio::defer_unlock defered_unlock{ sock };
 
 			auto [e2, n2] = co_await sock.async_send_to(
-				asio::to_buffer(msg), (*eps).endpoint(), asio::use_deferred_executor(sock));
+				asio::to_buffer(msg), eps.begin()->endpoint(), asio::use_deferred_executor(sock));
 			co_return{ e2, n2 };
 		}
 	};

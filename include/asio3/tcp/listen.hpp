@@ -55,7 +55,7 @@ namespace boost::asio::detail
 
 			try
 			{
-				endpoint_type bnd_endpoint = (*eps).endpoint();
+				endpoint_type bnd_endpoint = eps.begin()->endpoint();
 
 				acceptor_type tmp(acceptor.get_executor(), bnd_endpoint, reuse_addr);
 
